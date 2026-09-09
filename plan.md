@@ -29,12 +29,13 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
 - [x] `organize_directory` tool (`tools/file_organizer.py`): lists the files directly in a directory, samples content for text-like extensions, asks the reasoning model for a filename → category-folder JSON plan, then moves everything under ONE batch confirmation showing the full plan.
 - [x] Undo support — `undo_last_organize` reverses the most recent run using a per-directory JSON log (`.agentic_ai_os_organize_log.json`).
 
-## Phase 3 — Semantic Desktop Search
+## Phase 3 — Semantic Desktop Search ✅
 
-- [ ] Stand up the vector store the README already promises (`memory/vector_store/`) — pick FAISS or ChromaDB (local, no server).
-- [ ] Indexing tool: walk a directory, extract text (reuse `document_reader`), embed, store with file path + mtime metadata. Needs an embedding model — check if NIM or OpenRouter expose a free embeddings endpoint, else use a small local sentence-transformers model.
-- [ ] `semantic_search` tool: embed the query, similarity-search the store, return top-N file paths + snippets for the agent to reason over.
-- [ ] Incremental re-index (skip unchanged files by mtime) so this doesn't become a full re-scan every time.
+- [x] Vector store: ChromaDB `PersistentClient` at `memory/vector_store/` (gitignored — machine-local), using its bundled ONNX MiniLM embedding function so indexing/search need no LLM API call or key.
+- [x] `index_directory` tool (`tools/semantic_search.py`): walks a directory (recursive by default), extracts text via the now-shared `document_reader.extract_text()`, stores content + `{path, name, mtime}` metadata.
+- [x] `semantic_search` tool: similarity-search the collection, returns top-N `path (relevance score) + snippet`, with an optional `directory_filter`.
+- [x] Incremental re-index — skips files whose `mtime` metadata hasn't changed since the last index.
+- [ ] NIM/OpenRouter-backed embeddings as an alternative to the local ONNX model weren't pursued — the local model is free, offline-capable, and avoids a third failure mode (embedding API down) on top of the two LLM providers. Revisit only if embedding quality turns out to matter more than availability.
 
 ## Phase 4 — CLI Auto-Pilot hardening
 

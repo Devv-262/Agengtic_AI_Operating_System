@@ -4,18 +4,18 @@ An intelligent, API-driven Agentic Operating System that bridges the gap between
 
 This project serves as a "Personal AI OS Agent," capable of executing complex workflows, organizing files, and securely controlling the local system using Large Language Models (LLMs) equipped with function-calling capabilities.
 
-## 🚀 Key Features (Planned)
+## 🚀 Key Features
 
-1. **Smart File Organizer** 
-   - Uses context and LLM analysis to sort files (e.g., Downloads, Documents) logically, moving beyond simple file-extension matching.
-2. **Semantic Desktop Search** 
-   - Employs a local vector database to find files based on their meaning or content (e.g., "Find the invoice from last month about server costs").
-3. **CLI Auto-Pilot** 
-   - Translates natural language requests into complex bash/PowerShell commands and runs them in a secure sandbox.
-4. **Local Document Summarizer** 
-   - Ingests local PDFs, DOCX, and TXT files for instantaneous summarization and Q&A.
-5. **System Automation & Control** 
-   - Adjusts system settings (volume, dark mode) and chains scripts together to automate repetitive desktop workflows.
+1. **Smart File Organizer** ✅
+   - `organize_directory` proposes a logical category-folder plan (LLM analysis of filename + content), moves everything under a single confirmation, and supports `undo_last_organize`.
+2. **Semantic Desktop Search** ✅
+   - `index_directory` + `semantic_search` find files by meaning, not just exact keyword (e.g. "the PDF about machine learning I downloaded last week"), backed by a local ChromaDB index with on-device embeddings.
+3. **CLI Auto-Pilot** ✅
+   - `generate_shell_command` translates natural language into PowerShell/bash, `execute_command` runs it — behind a destructive-pattern blocklist and a confirmation prompt.
+4. **Local Document Summarizer** ✅
+   - `read_document` ingests local PDFs, DOCX, and TXT files; `think_deeply` answers questions over the extracted text.
+5. **System Automation & Control** ✅ (partial)
+   - `set_volume` / `set_dark_mode` adjust system settings. Chaining multiple tools together (e.g. resize + zip) is still planned — see `plan.md`.
 
 ## 🧠 Architecture Overview
 
@@ -44,23 +44,34 @@ Agentic-AI-OS/
 │
 ├── tools/
 │   ├── __init__.py
-│   ├── file_manager.py         # Tools for reading, moving, and organizing files
+│   ├── file_manager.py         # Tools for reading, moving, and deleting files
+│   ├── file_organizer.py       # Smart File Organizer + undo
+│   ├── semantic_search.py      # Semantic Desktop Search (index + search)
 │   ├── system_controller.py    # Tools for modifying OS settings and volumes
 │   ├── document_reader.py      # Tools for parsing PDFs and local text
-│   └── shell_executor.py       # Safe subprocess execution wrapper
+│   ├── shell_executor.py       # Safe subprocess execution wrapper
+│   ├── reasoning.py            # think_deeply / generate_shell_command specialist-model tools
+│   ├── _safety.py              # Path sandbox + shell command blocklist
+│   └── _confirm.py             # Pluggable human-in-the-loop confirmation gate
 │
 ├── memory/
-│   └── vector_store/           # Local ChromaDB/FAISS for semantic file search
+│   └── vector_store/           # Local ChromaDB index for semantic file search (gitignored)
 │
 ├── ui/
 │   ├── cli.py                  # Rich-based Terminal interface implementation
 │   └── floating_bar.py         # PyQt6 Spotlight-style floating desktop bar
 │
-├── tests/
-│   └── test_tools.py           # Unit tests for OS-level tool safety
+├── docs/
+│   └── ui-ideas/                # Saved UI concepts for future phases
 │
-├── requirements.txt            # Python dependencies (LangChain, Rich, etc.)
-└── .env.example                # Template for environment variables (API keys)
+├── tests/
+│   ├── test_tools.py            # Unit tests for OS-level tool safety
+│   ├── test_file_organizer.py   # Unit tests for the Smart File Organizer
+│   └── test_semantic_search.py  # Unit tests for Semantic Desktop Search
+│
+├── plan.md                      # Implementation roadmap / what's left
+├── requirements.txt              # Python dependencies (LangChain, Rich, ChromaDB, etc.)
+└── .env.example                  # Template for environment variables (API keys)
 ```
 
 ## 🛠️ Setup Instructions
@@ -73,4 +84,8 @@ Agentic-AI-OS/
 
 ## ⚠️ Security Notice
 
-This agent interacts directly with the local operating system. All destructive tools (like deleting files or running shell commands) will require explicit User Confirmation (Human-in-the-Loop) before execution.
+This agent interacts directly with the local operating system.
+
+- All destructive tools (deleting/moving/organizing files, running shell commands) require explicit User Confirmation (Human-in-the-Loop) before execution.
+- File tools are sandboxed to the user's home directory tree by default (`ALLOWED_ROOTS` / `ENABLE_PATH_SANDBOX` in `.env`).
+- `execute_command` hard-refuses known-destructive shell patterns (`rm -rf`, `format`, fork bombs, raw device writes) — this is a stronger guarantee than confirmation, since it can't be approved by mistake.

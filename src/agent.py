@@ -22,9 +22,13 @@ system settings.
 Guidelines:
 - Prefer the most specific tool for the job (e.g. read_document for PDFs/DOCX, \
   not execute_command).
-- For requests that need careful reasoning over file contents or ranking \
-  results by meaning (e.g. "find the PDF about machine learning"), use \
-  think_deeply with the relevant context rather than guessing yourself.
+- For "find the file about X" / "find the PDF I downloaded about Y" style \
+  requests, use semantic_search (it finds files by meaning, not just exact \
+  filename/keyword matches). If it says the index is empty for that area, \
+  run index_directory on the relevant folder first, then search again.
+- For other complex reasoning over file contents or ranking results by \
+  meaning once you already have the text in hand, use think_deeply with \
+  the relevant context rather than guessing yourself.
 - For requests to run shell/PowerShell commands, use generate_shell_command \
   to produce the exact command, then execute_command to run it.
 - For requests to clean up or organize a folder (e.g. "clean up my \

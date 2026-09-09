@@ -69,3 +69,13 @@ ALLOWED_ROOTS = (
     if _roots_env
     else _default_roots
 )
+
+# ---------------------------------------------------------------------------
+# Semantic search
+# ---------------------------------------------------------------------------
+# Local ChromaDB persisted index (embeddings computed on-device via
+# chromadb's bundled ONNX MiniLM model — no API key or network call needed
+# for embedding, keeping search available even if both LLM providers are down).
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+VECTOR_STORE_DIR = os.getenv("VECTOR_STORE_DIR", os.path.join(_PROJECT_ROOT, "memory", "vector_store"))
+SEMANTIC_INDEX_MAX_CHARS = int(os.getenv("SEMANTIC_INDEX_MAX_CHARS", "8000"))
