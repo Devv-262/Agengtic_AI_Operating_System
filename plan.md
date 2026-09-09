@@ -61,6 +61,16 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
 - [ ] No visual "confirmation pending" state in the bar itself — a destructive-action confirm currently pops a separate `QMessageBox`; consider inlining it into the bar UI instead.
 - [ ] No history/multi-turn view in the floating bar (single input → single output, unlike the CLI's scrolling transcript).
 
+## Future UI idea (not scheduled yet)
+
+- [ ] Full dashboard UI, separate from the floating bar — see
+  `docs/ui-ideas/dashboard-concept.md` for a saved reference layout (chat
+  panel with assistant persona, quick-action chips, calendar/progress/
+  activity-feed widgets, proactive "AI suggestion" card). Revisit once more
+  core features (Phases 1-5) are built — proactive suggestions in
+  particular depend on the Smart File Organizer and Semantic Search
+  actually existing first.
+
 ## Explicitly out of scope for now
 
 - macOS/Linux dark-mode-equivalent parity beyond what's already stubbed for shell-based platforms is low priority given primary dev target is Windows.
