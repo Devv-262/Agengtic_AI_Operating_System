@@ -11,7 +11,7 @@ import logging
 
 from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import MemorySaver
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, AIMessage, ToolMessage
 
 from src.llm_provider import get_llm
 from tools import ALL_TOOLS
@@ -74,6 +74,33 @@ class OSAgentSystem:
         except Exception as e:
             logger.exception("Agent failed to process command: %r", user_input)
             return f"Error processing command: {str(e)}"
+
+    def stream_command(self, user_input: str):
+        """
+        Generator variant of process_command for UIs that want to show live
+        progress (e.g. the floating bar's activity log) instead of just the
+        final answer. Yields dicts as the agent works:
+          {"type": "tool_call", "name": str, "args": dict}
+          {"type": "tool_result", "name": str, "result": str}
+          {"type": "final", "content": str}
+          {"type": "error", "message": str}
+        The last event is always exactly one of "final" or "error".
+        """
+        inputs = {"messages": [("user", user_input)]}
+        try:
+            for step in self.agent.stream(inputs, config=self.config, stream_mode="updates"):
+                for node_output in step.values():
+                    for msg in node_output.get("messages", []):
+                        if isinstance(msg, AIMessage) and msg.tool_calls:
+                            for call in msg.tool_calls:
+                                yield {"type": "tool_call", "name": call["name"], "args": call.get("args", {})}
+                        elif isinstance(msg, ToolMessage):
+                            yield {"type": "tool_result", "name": msg.name, "result": str(msg.content)}
+                        elif isinstance(msg, AIMessage) and msg.content:
+                            yield {"type": "final", "content": msg.content}
+        except Exception as e:
+            logger.exception("Agent failed to process command: %r", user_input)
+            yield {"type": "error", "message": str(e)}
 
 if __name__ == "__main__":
     system = OSAgentSystem()
