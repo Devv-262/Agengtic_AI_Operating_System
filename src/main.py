@@ -22,6 +22,7 @@ if _PROJECT_ROOT not in sys.path:
 # Internal imports
 # ---------------------------------------------------------------------------
 from src.config import NIM_API_KEY, OPENROUTER_API_KEY
+from src.logging_config import setup_logging
 
 
 def _validate_env() -> bool:
@@ -43,6 +44,8 @@ def _validate_env() -> bool:
 def main() -> None:
     """Bootstrap the OS Agent and launch either the terminal REPL or the
     PyQt floating bar, depending on the --gui flag."""
+    setup_logging()
+
     if not _validate_env():
         sys.exit(1)
 

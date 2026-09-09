@@ -9,3 +9,6 @@ venv/
 # Local semantic search index (personal, machine-specific, and large)
 memory/vector_store/*
 !memory/vector_store/.gitkeep
+
+# Runtime logs
+logs/

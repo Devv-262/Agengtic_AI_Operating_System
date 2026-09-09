@@ -48,13 +48,13 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
 - [x] Archive tools: `create_archive` (zip a list of files/folders) and `extract_archive` (unzip, with a zip-slip path-traversal guard).
 - [x] Confirmed the "chaining" itself needs no new orchestration — the ReAct loop already calls `resize_images` then `create_archive` in sequence for a combined request.
 
-## Phase 6 — Polish / ops
+## Phase 6 — Polish / ops ✅
 
-- [ ] Test coverage for `system_controller.py`, `document_reader.py`, `reasoning.py` (only file_manager/shell_executor are tested today).
-- [ ] Logging (structured, to a file) instead of print-only, so failed tool calls are diagnosable after the fact.
-- [ ] `pyproject.toml` + console-script entry point (`agentic-os` command) instead of `python -m src.main`.
-- [ ] CI: GitHub Actions running `pytest` on push.
-- [ ] Conversation persistence: `OSAgentSystem` uses a static `thread_id` but no LangGraph checkpointer is configured, so history doesn't survive a restart. Add `MemorySaver` (or a SQLite checkpointer) if multi-session memory matters.
+- [x] Test coverage for `system_controller.py` (`tests/test_system_controller.py`), `document_reader.py` (`tests/test_document_reader.py`), `reasoning.py` (`tests/test_reasoning.py`).
+- [x] Logging — `src/logging_config.py` sets up a rotating file handler (`logs/agentic_ai_os.log`, INFO+) plus a console handler (WARNING+), called from `main.py` and both UI entry points. `OSAgentSystem.process_command` now logs the full traceback on failure via `logger.exception(...)`.
+- [x] `pyproject.toml` + console-script entry point — `agentic-os` command via `pip install -e .` (added `src/__init__.py` and `ui/__init__.py` so `src`/`tools`/`ui` are regular packages setuptools can discover). `requirements.txt` remains for the plain `pip install -r` workflow.
+- [x] CI: `.github/workflows/tests.yml` runs `pytest` on push/PR to `main` (ubuntu-latest; Windows-only deps like `pycaw` are skipped automatically via their `sys_platform` markers, and no test imports `ui.floating_bar` so the headless runner never needs a display).
+- [x] Conversation persistence (in-process) — `MemorySaver` checkpointer wired into `create_react_agent` in `src/agent.py`, so the agent now actually remembers earlier turns within a running session (previously each `process_command` call was stateless despite the `thread_id` config existing — no checkpointer meant nothing was ever stored against it). Does **not** persist across process restarts; a SQLite/file-backed checkpointer would be the next step if that's wanted.
 
 ## Follow-ups on the floating bar
 

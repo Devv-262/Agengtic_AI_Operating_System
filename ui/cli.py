@@ -10,6 +10,7 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 
 from src.agent import OSAgentSystem
+from src.logging_config import setup_logging
 from tools._confirm import set_confirm_handler
 
 APP_NAME = "Agentic-AI-OS"
@@ -47,6 +48,7 @@ def _cli_confirm_handler(description: str) -> bool:
 
 def run() -> None:
     """Bootstrap the OS Agent and enter the interactive Rich REPL."""
+    setup_logging()
     _print_banner()
     set_confirm_handler(_cli_confirm_handler)
 

@@ -72,7 +72,11 @@ Agentic-AI-OS/
 │   ├── test_reasoning.py        # Unit tests for OS-aware shell command generation
 │   └── test_task_automation.py  # Unit tests for image resize / zip / unzip
 │
+├── .github/workflows/
+│   └── tests.yml                 # CI: runs pytest on push/PR to main
+│
 ├── plan.md                      # Implementation roadmap / what's left
+├── pyproject.toml                # Packaging + `agentic-os` console-script entry point
 ├── requirements.txt              # Python dependencies (LangChain, Rich, ChromaDB, etc.)
 └── .env.example                  # Template for environment variables (API keys)
 ```
@@ -84,6 +88,8 @@ Agentic-AI-OS/
 3. Run the agent:
    - Terminal CLI: `python -m src.main`
    - Floating desktop bar: `python -m src.main --gui` — runs in the system tray, press **Ctrl+Space** to open/close it. Right-click the tray icon to quit.
+   - Alternatively, `pip install -e .` once to get an `agentic-os` command on your PATH (equivalent to `python -m src.main`; pass `--gui` the same way).
+4. Logs are written to `logs/agentic_ai_os.log` (rotating, gitignored) if you need to debug a failure after the fact.
 
 ## ⚠️ Security Notice
 

@@ -7,11 +7,16 @@ OpenRouter models), binds it to the available system tools, and sets up the
 ReAct (Reasoning and Acting) loop. This module exposes the `OSAgentSystem`
 class, which the UI or CLI can import to process user commands.
 """
+import logging
+
 from langgraph.prebuilt import create_react_agent
+from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import SystemMessage
 
 from src.llm_provider import get_llm
 from tools import ALL_TOOLS
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = SystemMessage(content="""\
 You are Agentic-AI-OS, a personal AI operating-system assistant. You control \
@@ -50,7 +55,11 @@ Guidelines:
 
 llm = get_llm(task="agent", temperature=0)
 
-os_agent = create_react_agent(llm, tools=ALL_TOOLS, prompt=SYSTEM_PROMPT)
+# MemorySaver checkpoints conversation state per thread_id in-process, so the
+# agent remembers earlier turns within a running session (e.g. "delete that
+# file" referring to something named two turns ago). It does not persist
+# across process restarts — see plan.md if that's needed later.
+os_agent = create_react_agent(llm, tools=ALL_TOOLS, prompt=SYSTEM_PROMPT, checkpointer=MemorySaver())
 
 class OSAgentSystem:
     def __init__(self):
@@ -63,6 +72,7 @@ class OSAgentSystem:
             result = self.agent.invoke(inputs, config=self.config)
             return result["messages"][-1].content
         except Exception as e:
+            logger.exception("Agent failed to process command: %r", user_input)
             return f"Error processing command: {str(e)}"
 
 if __name__ == "__main__":

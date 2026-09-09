@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
 )
 
 from src.agent import OSAgentSystem
+from src.logging_config import setup_logging
 from tools._confirm import set_confirm_handler
 
 HOTKEY = "ctrl+space"
@@ -217,6 +218,7 @@ def _register_hotkey(bar: FloatingBar) -> None:
 
 
 def main() -> None:
+    setup_logging()
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
 

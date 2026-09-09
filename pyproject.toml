@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-ai-os"
+version = "0.2.0"
+description = "Personal AI OS agent: local file, shell, and system control via NVIDIA NIM / OpenRouter LLMs"
+requires-python = ">=3.10"
+dependencies = [
+    "python-dotenv>=1.0.0",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langgraph>=0.2.0",
+    "rich>=13.7.0",
+    "pypdf>=4.0.0",
+    "python-docx>=1.1.0",
+    "chromadb>=0.5.0",
+    "Pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+gui = ["PyQt6>=6.6.0", "keyboard>=0.13.5"]
+windows = ["pycaw>=20240210", "comtypes>=1.4.0"]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+agentic-os = "src.main:main"
+
+[tool.setuptools]
+packages = ["src", "tools", "ui"]
