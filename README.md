@@ -53,7 +53,8 @@ Agentic-AI-OS/
 │   └── vector_store/           # Local ChromaDB/FAISS for semantic file search
 │
 ├── ui/
-│   └── cli.py                  # Rich-based Terminal interface implementation
+│   ├── cli.py                  # Rich-based Terminal interface implementation
+│   └── floating_bar.py         # PyQt6 Spotlight-style floating desktop bar
 │
 ├── tests/
 │   └── test_tools.py           # Unit tests for OS-level tool safety
@@ -66,7 +67,9 @@ Agentic-AI-OS/
 
 1. `pip install -r requirements.txt`
 2. Copy `.env.example` to `.env` and add at least one of `NIM_API_KEY` (get one free at [build.nvidia.com](https://build.nvidia.com)) or `OPENROUTER_API_KEY` (free at [openrouter.ai/keys](https://openrouter.ai/keys)). Having both gives you automatic failover.
-3. Run the agent: `python -m src.main`
+3. Run the agent:
+   - Terminal CLI: `python -m src.main`
+   - Floating desktop bar: `python -m src.main --gui` — runs in the system tray, press **Ctrl+Space** to open/close it. Right-click the tray icon to quit.
 
 ## ⚠️ Security Notice
 

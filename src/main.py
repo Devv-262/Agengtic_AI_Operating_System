@@ -41,12 +41,17 @@ def _validate_env() -> bool:
 
 
 def main() -> None:
-    """Bootstrap the OS Agent and enter the interactive REPL."""
+    """Bootstrap the OS Agent and launch either the terminal REPL or the
+    PyQt floating bar, depending on the --gui flag."""
     if not _validate_env():
         sys.exit(1)
 
-    from ui.cli import run
-    run()
+    if "--gui" in sys.argv:
+        from ui.floating_bar import main as run_gui
+        run_gui()
+    else:
+        from ui.cli import run
+        run()
 
 
 if __name__ == "__main__":
