@@ -8,6 +8,8 @@ import shutil
 from pathlib import Path
 from langchain_core.tools import tool
 
+from tools._confirm import confirm_action
+
 @tool
 def list_directory(directory_path: str) -> str:
     """Lists the contents of a specified directory."""
@@ -46,7 +48,10 @@ def move_file(source_path: str, destination_path: str) -> str:
         dst = Path(destination_path).expanduser().resolve()
         if not src.exists():
             return f"Error: Source '{src}' does not exist."
-        
+
+        if not confirm_action(f"Move '{src}' -> '{dst}'"):
+            return "Cancelled: user did not approve the move."
+
         shutil.move(str(src), str(dst))
         return f"Successfully moved '{src}' to '{dst}'."
     except Exception as e:
@@ -59,7 +64,10 @@ def delete_file(file_path: str) -> str:
         path = Path(file_path).expanduser().resolve()
         if not path.exists():
             return f"Error: File '{path}' does not exist."
-        
+
+        if not confirm_action(f"Delete '{path}'"):
+            return "Cancelled: user did not approve the deletion."
+
         if path.is_file():
             os.remove(path)
         elif path.is_dir():

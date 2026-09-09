@@ -1,0 +1,13 @@
+python-dotenv>=1.0.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langgraph>=0.2.0
+rich>=13.7.0
+
+# Document parsing
+pypdf>=4.0.0
+python-docx>=1.1.0
+
+# Windows system control (safe to install cross-platform; guarded at import time)
+pycaw>=20240210; sys_platform == "win32"
+comtypes>=1.4.0; sys_platform == "win32"

@@ -8,13 +8,15 @@ import subprocess
 import platform
 from langchain_core.tools import tool
 
+from tools._confirm import confirm_action
+
 @tool
 def execute_command(command: str) -> str:
-    """Executes a shell command on the local system."""
+    """Executes a shell command (PowerShell on Windows, bash elsewhere) on the local system."""
     try:
-        # Warning: Direct execution of LLM generated commands is dangerous.
-        # In a real app, you would add a human-in-the-loop confirmation step here.
-        
+        if not confirm_action(f"Run shell command: {command}"):
+            return "Cancelled: user did not approve running this command."
+
         # Use shell=True for windows to allow built-ins like 'dir'
         use_shell = platform.system() == "Windows"
         
