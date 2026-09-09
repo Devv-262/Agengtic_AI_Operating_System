@@ -25,20 +25,26 @@ OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/ap
 # ---------------------------------------------------------------------------
 # Task -> model routing
 # ---------------------------------------------------------------------------
-# Each task has a NIM model id and an OpenRouter (free-tier) fallback model id.
-# Override any of these via .env without touching code.
+# Each task has a NIM model id and an OpenRouter fallback model id. The
+# OpenRouter fallback defaults to "openrouter/free", OpenRouter's own router
+# alias that auto-selects among currently-available free models filtered by
+# required capabilities (e.g. tool calling) — chosen over pinning a specific
+# free model because OpenRouter's free-tier roster is volatile (whole free
+# model families have gone dark before), which would otherwise undermine the
+# fallback's entire purpose. Override any of these via .env without touching
+# code. See plan.md's "Operational note" if a model here goes stale again.
 MODELS = {
     "agent": {
-        "nim": os.getenv("MODEL_AGENT_NIM", "meta/llama-3.3-70b-instruct"),
-        "openrouter": os.getenv("MODEL_AGENT_OPENROUTER", "meta-llama/llama-3.3-70b-instruct:free"),
+        "nim": os.getenv("MODEL_AGENT_NIM", "nvidia/nemotron-3-super-120b-a12b"),
+        "openrouter": os.getenv("MODEL_AGENT_OPENROUTER", "openrouter/free"),
     },
     "reasoning": {
-        "nim": os.getenv("MODEL_REASONING_NIM", "nvidia/llama-3.1-nemotron-70b-instruct"),
-        "openrouter": os.getenv("MODEL_REASONING_OPENROUTER", "nvidia/llama-3.1-nemotron-70b-instruct:free"),
+        "nim": os.getenv("MODEL_REASONING_NIM", "nvidia/nemotron-3-ultra-550b-a55b"),
+        "openrouter": os.getenv("MODEL_REASONING_OPENROUTER", "openrouter/free"),
     },
     "coder": {
         "nim": os.getenv("MODEL_CODER_NIM", "qwen/qwen2.5-coder-32b-instruct"),
-        "openrouter": os.getenv("MODEL_CODER_OPENROUTER", "qwen/qwen-2.5-coder-32b-instruct:free"),
+        "openrouter": os.getenv("MODEL_CODER_OPENROUTER", "openrouter/free"),
     },
 }
 

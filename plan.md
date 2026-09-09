@@ -5,7 +5,7 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
 ## Done
 
 - [x] Multi-provider LLM routing: NVIDIA NIM primary, OpenRouter free-tier fallback (`src/llm_provider.py`)
-- [x] Task-specific models: agent (tool-calling), reasoning, coder (`src/config.py`)
+- [x] Task-specific models: agent (tool-calling), reasoning, coder (`src/config.py`). Updated 2026-09-10 after NVIDIA retired `meta/llama-3.3-70b-instruct` (confirmed via a live `410` end-of-life error) — agent now uses `nvidia/nemotron-3-super-120b-a12b`, reasoning uses `nvidia/nemotron-3-ultra-550b-a55b` (the prior `nvidia/llama-3.1-nemotron-70b-instruct` was also no longer in NVIDIA's current catalog); all three OpenRouter fallbacks switched from pinned free model IDs to the `openrouter/free` router alias for resilience against OpenRouter's free-tier churn. See the operational note below.
 - [x] LangGraph ReAct agent wired to the real tool package (`src/agent.py`)
 - [x] File tools: list/read/move/delete (`tools/file_manager.py`)
 - [x] Shell execution tool (`tools/shell_executor.py`)
@@ -71,6 +71,24 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
   core features (Phases 1-5) are built — proactive suggestions in
   particular depend on the Smart File Organizer and Semantic Search
   actually existing first.
+
+## Operational note — NIM/OpenRouter model IDs can go stale
+
+Both providers' model catalogs change over time (NVIDIA has retired NIM
+models with a hard 410 end-of-life; OpenRouter's free tier has gone dark
+for entire model families before, e.g. Llama and Qwen free tiers in early
+August 2026). If the agent starts failing with a 410 or a persistent
+"model not found"-style error:
+
+- Check `docs.api.nvidia.com/nim/reference/llm-apis` for the current NIM
+  model list and swap the relevant `MODEL_*_NIM` env var(s) — no code
+  change needed, these are plain env-overridable string defaults in
+  `src/config.py`.
+- The OpenRouter fallback defaults to `openrouter/free` (OpenRouter's
+  router alias, auto-selects an available free tool-calling-capable
+  model) specifically to avoid this class of failure on the fallback
+  path; only override `MODEL_*_OPENROUTER` to a pinned model if you need
+  deterministic behavior for a specific reason.
 
 ## Explicitly out of scope for now
 

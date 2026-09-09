@@ -21,14 +21,16 @@ This project serves as a "Personal AI OS Agent," capable of executing complex wo
 
 Since this system avoids heavy local hardware dependencies (no local GPU required), the architecture is split into three layers:
 
-- **The Brain (API Layer):** NVIDIA NIM as the primary provider, with automatic fallback to free OpenRouter models if NIM is unavailable. Three task-specific models are routed by job:
+- **The Brain (API Layer):** NVIDIA NIM as the primary provider, with automatic fallback to OpenRouter if NIM is unavailable. Three task-specific models are routed by job:
   | Task | Model | Why |
   |---|---|---|
-  | Agent loop / tool-calling | `meta/llama-3.3-70b-instruct` | Most reliable structured tool-calling among the free options |
-  | Deep reasoning / summarization / semantic ranking | `nvidia/llama-3.1-nemotron-70b-instruct` | Strong at nuanced instruction-following and long-document Q&A; called as a tool (`think_deeply`), not the loop driver |
+  | Agent loop / tool-calling | `nvidia/nemotron-3-super-120b-a12b` | NVIDIA-tuned for agentic reasoning, planning, and tool calling — the loop driver needs reliable structured function calls |
+  | Deep reasoning / summarization / semantic ranking | `nvidia/nemotron-3-ultra-550b-a55b` | Largest Nemotron 3 tier, strong at nuanced instruction-following and long-document Q&A; called as a tool (`think_deeply`), not the loop driver, so its higher latency is acceptable |
   | Shell/CLI command generation | `qwen/qwen2.5-coder-32b-instruct` | Best free-tier model for English → PowerShell/bash |
 
-  All models are overridable via `.env` (see `.env.example`).
+  The OpenRouter fallback for all three defaults to `openrouter/free` — OpenRouter's own router alias that auto-picks an available free tool-calling-capable model — rather than a pinned free model, since OpenRouter's free-tier roster is volatile (whole free model families have gone dark before) and a pinned fallback can itself silently die, defeating the point of having one.
+
+  All models are overridable via `.env` (see `.env.example`). If NIM starts returning a `410`/"model not found" error, see `plan.md`'s "Operational note" section for how to find and swap in a current model ID.
 - **The Body (Orchestration Layer):** Python + LangGraph `create_react_agent`. This layer handles the Agent loop, deciding which tools to call based on the LLM's reasoning.
 - **The Hands (Tool Layer):** Custom Python scripts and system calls that safely interact with the local filesystem and OS. Destructive tools (`delete_file`, `move_file`, `execute_command`) always prompt for human confirmation before acting.
 
