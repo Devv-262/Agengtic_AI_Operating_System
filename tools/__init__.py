@@ -14,6 +14,7 @@ from tools.system_controller  import system_controller_tools
 from tools.document_reader    import document_reader_tools
 from tools.shell_executor     import shell_executor_tools
 from tools.reasoning          import reasoning_tools
+from tools.file_organizer     import file_organizer_tools
 
 # Master list consumed by agent.py when binding tools to the LLM.
 ALL_TOOLS: list = [
@@ -22,6 +23,7 @@ ALL_TOOLS: list = [
     *document_reader_tools,
     *shell_executor_tools,
     *reasoning_tools,
+    *file_organizer_tools,
 ]
 
 __all__ = [
@@ -31,4 +33,5 @@ __all__ = [
     "document_reader_tools",
     "shell_executor_tools",
     "reasoning_tools",
+    "file_organizer_tools",
 ]

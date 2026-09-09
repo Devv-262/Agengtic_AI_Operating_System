@@ -24,10 +24,10 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
 - [x] **Confirmation UX under Rich.** `ui/cli.py` now installs a distinct red-bordered `Panel` confirmation prompt via `set_confirm_handler`, visually separated from normal agent replies.
 - [x] Rate-limit / retry handling — `max_retries=2` + `timeout=30s` on both the NIM and OpenRouter `ChatOpenAI` clients in `src/llm_provider.py`, absorbing transient 429s/5xxs before falling through to the fallback provider.
 
-## Phase 2 — Smart File Organizer
+## Phase 2 — Smart File Organizer ✅
 
-- [ ] `organize_directory` tool/workflow: list a directory, read a sample of each file (name + first N chars / metadata), ask the reasoning model to propose a category, then batch-move with a single confirmation showing the full move plan (not one confirmation per file).
-- [ ] Undo support — log the last organize run's moves so "undo that" is possible.
+- [x] `organize_directory` tool (`tools/file_organizer.py`): lists the files directly in a directory, samples content for text-like extensions, asks the reasoning model for a filename → category-folder JSON plan, then moves everything under ONE batch confirmation showing the full plan.
+- [x] Undo support — `undo_last_organize` reverses the most recent run using a per-directory JSON log (`.agentic_ai_os_organize_log.json`).
 
 ## Phase 3 — Semantic Desktop Search
 
