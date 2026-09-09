@@ -37,16 +37,16 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
 - [x] Incremental re-index — skips files whose `mtime` metadata hasn't changed since the last index.
 - [ ] NIM/OpenRouter-backed embeddings as an alternative to the local ONNX model weren't pursued — the local model is free, offline-capable, and avoids a third failure mode (embedding API down) on top of the two LLM providers. Revisit only if embedding quality turns out to matter more than availability.
 
-## Phase 4 — CLI Auto-Pilot hardening
+## Phase 4 — CLI Auto-Pilot hardening ✅
 
-- [ ] Currently `generate_shell_command` → `execute_command` is a two-step chain but nothing stops the agent from writing a raw command itself and skipping the coder model. Consider making `execute_command` reject commands that weren't produced by `generate_shell_command` in the same turn, or just accept this is a soft guideline.
-- [ ] Cross-platform command translation check — `generate_shell_command` takes a `target_shell` param but nothing auto-detects the host OS and defaults it; wire it to `platform.system()`.
+- [x] Decided against hard-enforcing `generate_shell_command` → `execute_command` — a same-turn tracking mechanism would be fragile (e.g. what counts as "the same turn" across a multi-step plan) and would block legitimate direct commands the agent already knows are safe. Kept as a system-prompt guideline instead (see `src/agent.py`).
+- [x] Cross-platform command translation — `generate_shell_command`'s `target_shell` now defaults to `None` and auto-detects via `platform.system()` (PowerShell on Windows, bash on macOS/Linux) instead of being hardcoded to `"powershell"`.
 
-## Phase 5 — Task Automation (chaining)
+## Phase 5 — Task Automation (chaining) ✅
 
-- [ ] Image tools: resize/convert (Pillow), so "resize all images in this folder to 1080p" works.
-- [ ] Archive tool: zip/unzip a set of paths.
-- [ ] These are individually simple tools — the "chaining" itself is just the ReAct loop calling them in sequence, so no new orchestration layer needed, just the missing tools.
+- [x] Image tool: `resize_images` (`tools/task_automation.py`, Pillow) — resizes every image in a directory to a max dimension (aspect-ratio preserved), writing into a `resized/` subfolder rather than overwriting originals.
+- [x] Archive tools: `create_archive` (zip a list of files/folders) and `extract_archive` (unzip, with a zip-slip path-traversal guard).
+- [x] Confirmed the "chaining" itself needs no new orchestration — the ReAct loop already calls `resize_images` then `create_archive` in sequence for a combined request.
 
 ## Phase 6 — Polish / ops
 

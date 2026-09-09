@@ -5,10 +5,23 @@ Role: Exposes the specialist models (reasoning, coder) as tools the main
 agent-loop model can call out to for sub-tasks they're individually better
 at, rather than doing everything with the tool-calling model.
 """
+import platform
+from typing import Optional
+
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from src.llm_provider import get_llm
+
+_DEFAULT_SHELL_BY_OS = {
+    "Windows": "powershell",
+    "Darwin": "bash",
+    "Linux": "bash",
+}
+
+
+def _detect_shell() -> str:
+    return _DEFAULT_SHELL_BY_OS.get(platform.system(), "bash")
 
 @tool
 def think_deeply(question: str, context: str) -> str:
@@ -28,18 +41,21 @@ def think_deeply(question: str, context: str) -> str:
     return response.content
 
 @tool
-def generate_shell_command(natural_language_request: str, target_shell: str = "powershell") -> str:
+def generate_shell_command(natural_language_request: str, target_shell: Optional[str] = None) -> str:
     """
     Translates a natural-language request into a single, correct shell
-    command (PowerShell or bash) using a coding-specialist model. Returns
-    ONLY the command text — pass it to execute_command to actually run it
-    (which will ask for confirmation).
+    command using a coding-specialist model. Returns ONLY the command text
+    — pass it to execute_command to actually run it (which will ask for
+    confirmation). target_shell defaults to the shell native to this host
+    OS (PowerShell on Windows, bash on macOS/Linux); only pass it
+    explicitly if the user asks for a specific shell.
     """
+    shell = target_shell or _detect_shell()
     llm = get_llm("coder", temperature=0)
     messages = [
         SystemMessage(
             content=(
-                f"You translate natural-language requests into a single correct {target_shell} "
+                f"You translate natural-language requests into a single correct {shell} "
                 "command. Reply with ONLY the command, no explanation, no markdown fences."
             )
         ),

@@ -14,8 +14,8 @@ This project serves as a "Personal AI OS Agent," capable of executing complex wo
    - `generate_shell_command` translates natural language into PowerShell/bash, `execute_command` runs it — behind a destructive-pattern blocklist and a confirmation prompt.
 4. **Local Document Summarizer** ✅
    - `read_document` ingests local PDFs, DOCX, and TXT files; `think_deeply` answers questions over the extracted text.
-5. **System Automation & Control** ✅ (partial)
-   - `set_volume` / `set_dark_mode` adjust system settings. Chaining multiple tools together (e.g. resize + zip) is still planned — see `plan.md`.
+5. **System Automation & Control** ✅
+   - `set_volume` / `set_dark_mode` adjust system settings. `resize_images`, `create_archive`, and `extract_archive` chain naturally through the ReAct loop for batch tasks (e.g. "resize these images and zip them").
 
 ## 🧠 Architecture Overview
 
@@ -47,6 +47,7 @@ Agentic-AI-OS/
 │   ├── file_manager.py         # Tools for reading, moving, and deleting files
 │   ├── file_organizer.py       # Smart File Organizer + undo
 │   ├── semantic_search.py      # Semantic Desktop Search (index + search)
+│   ├── task_automation.py      # Image resize, zip/unzip archives
 │   ├── system_controller.py    # Tools for modifying OS settings and volumes
 │   ├── document_reader.py      # Tools for parsing PDFs and local text
 │   ├── shell_executor.py       # Safe subprocess execution wrapper
@@ -67,7 +68,9 @@ Agentic-AI-OS/
 ├── tests/
 │   ├── test_tools.py            # Unit tests for OS-level tool safety
 │   ├── test_file_organizer.py   # Unit tests for the Smart File Organizer
-│   └── test_semantic_search.py  # Unit tests for Semantic Desktop Search
+│   ├── test_semantic_search.py  # Unit tests for Semantic Desktop Search
+│   ├── test_reasoning.py        # Unit tests for OS-aware shell command generation
+│   └── test_task_automation.py  # Unit tests for image resize / zip / unzip
 │
 ├── plan.md                      # Implementation roadmap / what's left
 ├── requirements.txt              # Python dependencies (LangChain, Rich, ChromaDB, etc.)

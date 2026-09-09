@@ -16,6 +16,7 @@ from tools.shell_executor     import shell_executor_tools
 from tools.reasoning          import reasoning_tools
 from tools.file_organizer     import file_organizer_tools
 from tools.semantic_search    import semantic_search_tools
+from tools.task_automation    import task_automation_tools
 
 # Master list consumed by agent.py when binding tools to the LLM.
 ALL_TOOLS: list = [
@@ -26,6 +27,7 @@ ALL_TOOLS: list = [
     *reasoning_tools,
     *file_organizer_tools,
     *semantic_search_tools,
+    *task_automation_tools,
 ]
 
 __all__ = [
@@ -37,4 +39,5 @@ __all__ = [
     "reasoning_tools",
     "file_organizer_tools",
     "semantic_search_tools",
+    "task_automation_tools",
 ]
