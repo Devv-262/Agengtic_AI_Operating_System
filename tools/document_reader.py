@@ -6,11 +6,16 @@ Role: Tools for reading and parsing contents of local documents (TXT, PDF, DOCX)
 from pathlib import Path
 from langchain_core.tools import tool
 
+from tools._safety import check_path_allowed
+
 @tool
 def read_document(file_path: str) -> str:
     """Reads the text content from a local document (TXT, PDF, or DOCX)."""
     try:
         path = Path(file_path).expanduser().resolve()
+        sandbox_error = check_path_allowed(path)
+        if sandbox_error:
+            return sandbox_error
         if not path.exists() or not path.is_file():
             return f"Error: Document '{path}' does not exist."
 

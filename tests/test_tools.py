@@ -7,12 +7,14 @@ confirmed.
 """
 import os
 import sys
+from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tools.file_manager import delete_file, move_file
+from tools.file_manager import delete_file, move_file, read_file
 from tools.shell_executor import execute_command
+from tools._safety import check_path_allowed, check_command_blocked
 
 
 def test_delete_file_cancelled_without_confirmation(tmp_path):
@@ -55,3 +57,48 @@ def test_execute_command_cancelled_without_confirmation():
         result = execute_command.invoke({"command": "echo hi"})
 
     assert "Cancelled" in result
+
+
+def test_path_outside_sandbox_is_rejected():
+    # A path far outside the user's home directory should never pass.
+    outside = Path("C:/Windows/System32/config" if os.name == "nt" else "/etc/shadow")
+    error = check_path_allowed(outside)
+    assert error is not None
+    assert "outside the allowed sandbox" in error
+
+
+def test_path_inside_home_is_allowed():
+    inside = Path.home() / "Desktop" / "notes.txt"
+    assert check_path_allowed(inside) is None
+
+
+def test_read_file_refuses_path_outside_sandbox():
+    outside = "C:/Windows/System32/drivers/etc/hosts" if os.name == "nt" else "/etc/hosts"
+    result = read_file.invoke({"file_path": outside})
+    assert "outside the allowed sandbox" in result
+
+
+def test_blocked_command_rm_rf_is_refused():
+    error = check_command_blocked("rm -rf /")
+    assert error is not None
+    assert "refused" in error
+
+
+def test_blocked_command_format_is_refused():
+    error = check_command_blocked("format c: /q")
+    assert error is not None
+
+
+def test_safe_command_is_not_blocked():
+    assert check_command_blocked("echo hello world") is None
+    assert check_command_blocked("dir C:\\Users") is None
+
+
+def test_execute_command_hard_blocks_without_asking_confirmation():
+    # The blocklist should short-circuit before confirm_action is even
+    # called — a rushed "y" must not be able to approve a wipe.
+    with patch("tools.shell_executor.confirm_action") as mock_confirm:
+        result = execute_command.invoke({"command": "rm -rf /"})
+
+    assert "refused" in result
+    mock_confirm.assert_not_called()

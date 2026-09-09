@@ -5,11 +5,9 @@ from the floating bar in `ui/floating_bar.py`, which stays the quick-access
 tool). Not being built yet — captured here so it isn't lost before the next
 UI phase starts.
 
-> Note: this describes a reference screenshot the user shared (a "Daily AI"
-> product dashboard). The image itself wasn't available to save as a file
-> from this session, so the layout is documented in full below instead. If
-> the original image is available, drop it into this folder alongside this
-> file (e.g. `dashboard-concept.png`) for the exact visual reference.
+> The original reference screenshot (a "Daily AI" product dashboard) is saved
+> alongside this file as `dashboard-concept.png`. The layout is also
+> documented in full below for quick reference without opening the image.
 
 ## Layout
 

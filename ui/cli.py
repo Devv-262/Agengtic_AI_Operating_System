@@ -10,6 +10,7 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 
 from src.agent import OSAgentSystem
+from tools._confirm import set_confirm_handler
 
 APP_NAME = "Agentic-AI-OS"
 APP_VERSION = "0.2.0"
@@ -30,9 +31,24 @@ def _print_banner() -> None:
     )
 
 
+def _cli_confirm_handler(description: str) -> bool:
+    """Rich-styled confirmation prompt, visually distinct from normal output
+    so a destructive-action ask never blends in with the agent's replies."""
+    console.print(
+        Panel.fit(
+            f"[bold yellow]{description}[/bold yellow]",
+            title="[bold red]⚠ CONFIRM ACTION[/bold red]",
+            border_style="red",
+        )
+    )
+    answer = console.input("[bold red]Proceed?[/bold red] \\[y/N] › ").strip().lower()
+    return answer in ("y", "yes")
+
+
 def run() -> None:
     """Bootstrap the OS Agent and enter the interactive Rich REPL."""
     _print_banner()
+    set_confirm_handler(_cli_confirm_handler)
 
     with console.status("[cyan]Initialising agent...", spinner="dots"):
         try:

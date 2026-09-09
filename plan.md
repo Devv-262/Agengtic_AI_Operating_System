@@ -17,12 +17,12 @@ Status snapshot and what's left, grouped by priority. Check off as completed.
 - [x] Unit tests for the confirmation gate (`tests/test_tools.py`)
 - [x] PyQt6 floating desktop bar (Spotlight-style, global hotkey, system tray) (`ui/floating_bar.py`), with the confirmation gate made pluggable so it can use a Qt dialog instead of stdin
 
-## Phase 1 — Safety hardening (do before wiring anything more powerful)
+## Phase 1 — Safety hardening (do before wiring anything more powerful) ✅
 
-- [ ] **Path sandboxing for file tools.** `delete_file`/`move_file`/`read_file` currently resolve and act on *any* path the model names, including system directories. Add an allowlist of roots (e.g. user's home, Desktop, Downloads, Documents) that tools refuse to operate outside of without an explicit override flag.
-- [ ] **Shell command guardrails.** `execute_command` has no blocklist — confirmation is the only gate, and a rushed "y" approves anything. Add a pattern blocklist for obviously destructive commands (`rm -rf /`, `format`, `del /s /q C:\`, fork bombs, etc.) that refuse even with confirmation, and show the exact command text prominently before the prompt (already does, but consider a diff-style highlight for `move_file` destinations).
-- [ ] **Confirmation UX under Rich.** Currently `input()` runs mid-agent-invoke inside the CLI loop with no live spinner conflict, but there's no visual distinction between "agent talking" and "agent asking permission" — worth a distinct prompt style.
-- [ ] Rate-limit / retry handling for both NIM and OpenRouter (free tiers throttle); currently a failure just falls through to the OpenRouter fallback once, then raises.
+- [x] **Path sandboxing for file tools.** `check_path_allowed()` in `tools/_safety.py`, wired into `list_directory`/`read_file`/`move_file`/`delete_file`/`read_document`. Defaults to the user's whole home directory (`ALLOWED_ROOTS` overridable via `.env`); toggle with `ENABLE_PATH_SANDBOX`.
+- [x] **Shell command guardrails.** `check_command_blocked()` in `tools/_safety.py` hard-refuses known-destructive patterns (`rm -rf`, `format`, fork bombs, raw device writes, etc.) *before* confirmation is even asked — a rushed "y" can't approve these.
+- [x] **Confirmation UX under Rich.** `ui/cli.py` now installs a distinct red-bordered `Panel` confirmation prompt via `set_confirm_handler`, visually separated from normal agent replies.
+- [x] Rate-limit / retry handling — `max_retries=2` + `timeout=30s` on both the NIM and OpenRouter `ChatOpenAI` clients in `src/llm_provider.py`, absorbing transient 429s/5xxs before falling through to the fallback provider.
 
 ## Phase 2 — Smart File Organizer
 

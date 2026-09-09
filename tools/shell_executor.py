@@ -9,11 +9,16 @@ import platform
 from langchain_core.tools import tool
 
 from tools._confirm import confirm_action
+from tools._safety import check_command_blocked
 
 @tool
 def execute_command(command: str) -> str:
     """Executes a shell command (PowerShell on Windows, bash elsewhere) on the local system."""
     try:
+        blocked_error = check_command_blocked(command)
+        if blocked_error:
+            return blocked_error
+
         if not confirm_action(f"Run shell command: {command}"):
             return "Cancelled: user did not approve running this command."
 

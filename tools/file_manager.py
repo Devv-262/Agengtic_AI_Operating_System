@@ -9,17 +9,21 @@ from pathlib import Path
 from langchain_core.tools import tool
 
 from tools._confirm import confirm_action
+from tools._safety import check_path_allowed
 
 @tool
 def list_directory(directory_path: str) -> str:
     """Lists the contents of a specified directory."""
     try:
         path = Path(directory_path).expanduser().resolve()
+        sandbox_error = check_path_allowed(path)
+        if sandbox_error:
+            return sandbox_error
         if not path.exists():
             return f"Error: Directory '{path}' does not exist."
         if not path.is_dir():
             return f"Error: '{path}' is not a directory."
-        
+
         items = os.listdir(path)
         if not items:
             return "Directory is empty."
@@ -32,9 +36,12 @@ def read_file(file_path: str) -> str:
     """Reads the text content of a file."""
     try:
         path = Path(file_path).expanduser().resolve()
+        sandbox_error = check_path_allowed(path)
+        if sandbox_error:
+            return sandbox_error
         if not path.exists() or not path.is_file():
             return f"Error: File '{path}' does not exist."
-        
+
         with open(path, 'r', encoding='utf-8') as f:
             return f.read()
     except Exception as e:
@@ -46,6 +53,10 @@ def move_file(source_path: str, destination_path: str) -> str:
     try:
         src = Path(source_path).expanduser().resolve()
         dst = Path(destination_path).expanduser().resolve()
+
+        sandbox_error = check_path_allowed(src) or check_path_allowed(dst)
+        if sandbox_error:
+            return sandbox_error
         if not src.exists():
             return f"Error: Source '{src}' does not exist."
 
@@ -62,6 +73,9 @@ def delete_file(file_path: str) -> str:
     """Deletes a file or directory."""
     try:
         path = Path(file_path).expanduser().resolve()
+        sandbox_error = check_path_allowed(path)
+        if sandbox_error:
+            return sandbox_error
         if not path.exists():
             return f"Error: File '{path}' does not exist."
 

@@ -46,3 +46,26 @@ MODELS = {
 # (file delete/move, shell commands). Defaults on; set to "false" to disable
 # for non-interactive use (not recommended).
 REQUIRE_CONFIRMATION = os.getenv("REQUIRE_CONFIRMATION", "true").lower() != "false"
+
+# ---------------------------------------------------------------------------
+# File tool sandboxing
+# ---------------------------------------------------------------------------
+# File tools (read/move/delete/organize) refuse to touch paths outside these
+# roots. Defaults to the user's own profile folders. Override via .env with a
+# comma-separated list of absolute paths. Set ENABLE_PATH_SANDBOX=false to
+# disable entirely (not recommended).
+ENABLE_PATH_SANDBOX = os.getenv("ENABLE_PATH_SANDBOX", "true").lower() != "false"
+
+_home = os.path.expanduser("~")
+_default_roots = [
+    _home,
+    os.path.join(_home, "Desktop"),
+    os.path.join(_home, "Downloads"),
+    os.path.join(_home, "Documents"),
+]
+_roots_env = os.getenv("ALLOWED_ROOTS")
+ALLOWED_ROOTS = (
+    [p.strip() for p in _roots_env.split(",") if p.strip()]
+    if _roots_env
+    else _default_roots
+)

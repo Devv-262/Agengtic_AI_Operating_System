@@ -20,12 +20,21 @@ from src.config import (
 )
 
 
+# Both providers' free tiers rate-limit aggressively; let the OpenAI client's
+# own retry/backoff absorb transient 429s/5xxs before we give up on this
+# provider and fall through to the other one via with_fallbacks().
+_MAX_RETRIES = 2
+_REQUEST_TIMEOUT = 30
+
+
 def _nim_client(model: str, temperature: float) -> ChatOpenAI:
     return ChatOpenAI(
         model=model,
         api_key=NIM_API_KEY,
         base_url=NIM_BASE_URL,
         temperature=temperature,
+        max_retries=_MAX_RETRIES,
+        timeout=_REQUEST_TIMEOUT,
     )
 
 
@@ -35,6 +44,8 @@ def _openrouter_client(model: str, temperature: float) -> ChatOpenAI:
         api_key=OPENROUTER_API_KEY,
         base_url=OPENROUTER_BASE_URL,
         temperature=temperature,
+        max_retries=_MAX_RETRIES,
+        timeout=_REQUEST_TIMEOUT,
     )
 
 
